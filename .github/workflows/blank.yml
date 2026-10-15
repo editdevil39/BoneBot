@@ -33,6 +33,10 @@ jobs:
           PROJECT_DIR="$(dirname "$BUILD_FILE")"
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
 
+      - name: Fix keybinding
+        run: |
+          sed -i 's/KeyBinding\.Category\.MISC/"category.bonebot"/' "$PROJECT_DIR/src/main/java/com/bonebot/BoneBotClient.java"
+          
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
