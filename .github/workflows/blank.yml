@@ -1,4 +1,5 @@
 
+
 name: Build BoneBot
 
 on:
@@ -21,12 +22,30 @@ jobs:
           java-version: '21'
           distribution: temurin
 
+      - name: Extract mod project
+        run: |
+          unzip -q BoneBot-Fabric-1.21.1-GitHub-Actions.zip -d source
+          BUILD_FILE="$(find source -type f \( -name build.gradle -o -name build.gradle.kts \) -print -quit)"
+          if [ -z "$BUILD_FILE" ]; then
+            echo "Gradle build file not found in ZIP"
+            exit 1
+          fi
+          PROJECT_DIR="$(dirname "$BUILD_FILE")"
+          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.10.2'
+
       - name: Build mod
-        run: chmod +x gradlew && ./gradlew build
+        run: |
+          cd "$PROJECT_DIR"
+          gradle build
 
       - name: Upload mod JAR
         uses: actions/upload-artifact@v4
         with:
           name: BoneBot-JAR
-          path: build/libs/*.jar
-          
+          path: source/**/build/libs/*.jar
+          if-no-files-found: error
